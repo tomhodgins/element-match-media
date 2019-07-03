@@ -1,2 +1,13 @@
 # element-match-media
-Parse media queries from the context of an element. Like window.matchMedia() but for HTML elements.
+
+**Like window.matchMedia() but for HTML elements.**
+
+## About
+
+Parse media queries from the context of an element. 
+
+## Usage
+
+```js
+elementMatchMedia()
+```
