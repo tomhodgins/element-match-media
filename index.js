@@ -9,9 +9,12 @@ export default function(
   if (iframe === null) {
     iframe = document.createElement('iframe')
     iframe.id = 'match-media'
-    iframe.style.position = 'fixed'
-    iframe.style.bottom = '-100vh'
-    iframe.style.right = '-100vw'
+    iframe.style.cssText = `
+      border: none;
+      position: fixed;
+      right: -100vw;
+      bottom: -100vh;
+    `
     document.body.appendChild(iframe)
   }
   ['Width', 'Height'].forEach(dimension =>

@@ -7,9 +7,10 @@ function elementMatchMedia(element, mediaQueryString) {
   if (iframe === null) {
     iframe = document.createElement('iframe')
     iframe.id = 'match-media'
+    iframe.style.border = 'none'
     iframe.style.position = 'fixed'
-    iframe.style.bottom = '-100vh'
     iframe.style.right = '-100vw'
+    iframe.style.bottom = '-100vh'
     document.body.appendChild(iframe)
   }
   ['Width', 'Height'].forEach(function(dimension){
