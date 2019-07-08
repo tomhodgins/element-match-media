@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width, initial-scale=1">
+<title>Element Match Media Tests</title>
+
+<style>
+  body {
+    line-height: 1.4;
+  }
+  code {
+    background: rgb(255, 255, 200);
+    padding: .125em .25em;
+  }
+</style>
+
+<h1>Element Match Media Tests</h1>
+<h2 id=pass>Tests passed:</h2>
+<ul></ul>
+<h2 id=fail>Tests failed:</h2>
+<ul></ul>
+
+<section style="visibility: hidden;">
+  <div id=one style="width: 100px; height: 200px"></div>
+  <div id=two style="width: 200px; height: 200px"></div>
+  <div id=three style="width: 200px; height: 100px"></div>
+</section>
+
+<script type=module>
+  import elementMatchMedia from '../index.js'
+
+  const tests = [
+
+    // Testing null input
+    {
+      name: 'Testing null input',
+      input: () => elementMatchMedia().matches,
+      expected: true
+    },
+
+    // Use DOM node reference
+    {
+      name: 'Use DOM node reference',
+      input: () => elementMatchMedia(
+        document.querySelector('#one'),
+        'screen'
+      ).matches,
+      expected: true
+    },
+
+    // Use string as CSS selector
+    {
+      name: 'Use string as CSS selector',
+      input: () => elementMatchMedia('#one', 'screen').matches,
+      expected: true
+    },
+
+    // Tests for #one
+    {
+      name: 'Test element #one is 100 pixels wide',
+      input: () => elementMatchMedia('#one', '(min-width: 100px)').matches,
+      expected: true
+    },
+    {
+      name: 'Test element #one is not 101 pixels wide',
+      input: () => elementMatchMedia('#one', '(min-width: 101px)').matches,
+      expected: false
+    },
+    {
+      name: 'Test element #one taller than it is wide',
+      input: () => elementMatchMedia('#one', '(max-aspect-ratio: 1/1)').matches,
+      expected: true
+    },
+    {
+      name: 'Test element #one is portrait orientation',
+      input: () => elementMatchMedia('#one', '(orientation: portrait)').matches,
+      expected: true
+    },
+
+    // Tests for #two
+    {
+      name: 'Test element #two is 200px by 200px',
+      input: () => elementMatchMedia(
+        '#two',
+        [
+          '(min-width: 200px)',
+          '(max-width: 201px)',
+          '(min-height: 200px)',
+          '(max-height: 201px)'
+        ].join(' and ')
+      ).matches,
+      expected: true
+    },
+
+  ]
+
+  const results = tests.reduce((acc, test) => {
+      test.result = test.input()
+      test.result === test.expected
+        ? acc.pass.push(test)
+        : acc.fail.push(test)
+      return acc
+    },
+    {pass: [], fail: []}
+  )
+
+  const passed = results.pass.length
+  const failed = results.fail.length
+  const total = passed + failed
+
+  // populate results to page
+  document.querySelector('#pass').textContent = `Tests passed ${passed}/${total}:`
+  document.querySelector('#fail').textContent = `Tests failed ${failed}/${total}:`
+
+  results.pass.forEach(test => {
+    const tag = document.createElement('li')
+    tag.innerHTML = `
+      <details>
+        <summary>${test.name}</summary>
+        <h3>Test</h3>
+        <p><pre>${test.input.toString()}</pre></p>
+        <h3>Expected</h3>
+        <p><code>${test.expected}</code></p>
+        <h3>Result</h3>
+        <p><code>${test.result}</code></p>
+      </details>
+    `
+    return document.querySelector('#pass + ul').appendChild(tag)
+  })
+
+  results.fail.forEach(test => {
+    const tag = document.createElement('li')
+    tag.innerHTML = `
+      <details>
+        <summary style=text-decoration:line-through>${test.name}</summary>
+        <h3>Test</h3>
+        <p><code>${test.input.toString().slice(6)}</code></p>
+        <h3>Expected</h3>
+        <p><code>${test.expected}</code></p>
+        <h3>Result</h3>
+        <p><code>${test.result}</code></p>
+      </details>
+    `
+    return document.querySelector('#fail + ul').appendChild(tag)
+  })
+</script>
