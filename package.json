@@ -1,6 +1,6 @@
 {
   "name": "element-match-media",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Like window.matchMedia() but for HTML elements",
   "main": "index.js",
   "scripts": {
