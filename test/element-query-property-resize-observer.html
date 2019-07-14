@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width, initial-scale=1">
+<title>Element Query Property (with Resize Observer)</title>
+<style>
+  body style {
+    display: block;
+    width: 100%;
+    padding: 1em;
+    margin: 1em 0px 2em;
+    border-radius: 3px;
+    font-size: 12pt;
+    font-family: monospace;
+    word-break: break-word;
+    white-space: pre-wrap;
+    font-kerning: auto;
+    color: rgba(0, 0, 0, 0.7);
+    background: transparent;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+  }
+  * {
+    box-sizing: border-box;
+    text-rendering: optimizelegibility;
+    -webkit-font-smoothing: antialiased;
+    font-kerning: auto;
+  }
+  body {
+    margin: 1em;
+    font-family: sans-serif;
+  }
+  [data-button] {
+    display: block;
+    margin: 1em 0px;
+  }
+  div {
+    display: inline-block;
+    border-radius: 0.2em;
+    padding: 1.5em;
+    color: rgb(85, 85, 85);
+    font-size: 12pt;
+    line-height: 1.4;
+    background: rgb(238, 238, 238);
+    border: 4px solid rgb(204, 204, 204);
+  }
+  input,
+  textarea {
+    display: block;
+    min-width: 250px;
+    border-radius: 0.2em;
+    margin: 1em;
+    padding: 0.5em;
+    color: rgb(85, 85, 85);
+    font-size: 12pt;
+    background: white;
+    border: 4px solid rgb(204, 204, 204);
+  }
+  section {
+    height: 300px;
+    display: inline-block;
+    border: 4px dotted lightskyblue;
+    padding: 1em;
+  }
+  img {
+    max-width: 50px;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 0.2em 0.5em;
+  }
+  img + img {
+    margin-left: 1em;
+  }
+  p {
+    font-size: 10pt;
+    color: rgb(85, 85, 85);
+  }
+  [class*="-scroll-x"] {
+    overflow-x: scroll;
+  }
+  [class*="-scroll-x"] p {
+    width: 200%;
+  }
+  [class*="-scroll-y"] {
+    height: 100px;
+    overflow-y: scroll;
+  }
+  [data-drag] {
+    overflow: auto;
+  }
+  [data-drag="horizontal"] {
+    resize: horizontal;
+  }
+  [data-drag="vertical"] {
+    resize: vertical;
+  }
+  [data-drag="both"] {
+    resize: both;
+  }
+</style>
+
+<h1>Element Query Property (with Resize Observer)</h1>
+
+<h2>Width Queries</h2>
+
+<h3 id=min-width>min-width</h3>
+<div class=minwidth data-drag=horizontal>class="minwidth"</div>
+
+<h3 id=max-with>max-width</h3>
+<div class=maxwidth data-drag=horizontal>class="maxwidth"</div>
+
+<h2>Height Queries</h2>
+
+<h3 id=min-height>min-height</h3>
+<div class=minheight data-drag=vertical>class="minheight"</div>
+
+<h3 id=max-height>max-height</h3>
+<div class=maxheight data-drag=vertical>class="maxheight"</div>
+
+<h2>Aspect Ratio queries</h2>
+
+<h3 id=orientation>orientation</h3>
+<div class=portrait style="width: 100px; height: 200px;">100 &times; 200</div>
+<div class=landscape style="width: 200px; height: 100px;">200 &times; 100</div>
+
+<h3 id=min-aspect-ratio>min-aspect-ratio</h3>
+<div class=minaspectratio data-drag=both>class="minaspectratio"</div>
+
+<h3 id=max-aspect-ratio>max-aspect-ratio</h3>
+<div class=maxaspectratio data-drag=both>class="maxaspectratio"</div>
+
+<style>
+  /* Min-width */
+  .minwidth {
+    --breakpoint: (min-width: 300px) {
+      border-color: limegreen;
+      background: greenyellow;
+    };
+  }
+
+  /* Max-width */
+  .maxwidth {
+    --breakpoint: (max-width: 300px) {
+      border-color: limegreen;
+      background: greenyellow;
+    };
+  }
+
+  /* Min-height */
+  .minheight {
+    --breakpoint: (min-height: 300px) {
+      border-color: limegreen;
+      background: greenyellow;
+    };
+  }
+
+  /* Max-height */
+  .maxheight {
+    --breakpoint: (max-height: 300px) {
+      border-color: limegreen;
+      background: greenyellow;
+    };
+  }
+
+  /* Portrait Orientation */
+  .portrait {
+    --breakpoint: (orientation: portrait) {
+      border-color: teal;
+      background: darkturquoise;
+    };
+  }
+
+  /* Landscape Orientation */
+  .landscape {
+    --breakpoint: (orientation: landscape) {
+      border-color: darkorchid;
+      background: orchid;
+    };
+  }
+
+  /* Min-aspect ratio */
+  .minaspectratio {
+    --breakpoint: (min-aspect-ratio: 16/9) {
+      border-color: limegreen;
+      background: greenyellow;
+    };
+  }
+
+  /* Max-aspect-ratio */
+  .maxaspectratio {
+    --breakpoint: (max-aspect-ratio: 16/9) {
+      border-color: limegreen;
+      background: greenyellow;
+    };
+  }
+</style>
+
+<script type=module>
+  import {process, property} from 'https://unpkg.com/cssomtools@0.0.2/index.js'
+  import elementMatchMedia from '../index.js'
+
+  // Get all selectors
+  const selectors = []
+
+  process(
+    property('--breakpoint'),
+    rule => {
+      if (!selectors.includes(rule.selectorText)) {
+        selectors.push(rule.selectorText)
+      }
+      rule.style.setProperty(
+        '--breakpoints-list',
+        JSON.stringify(
+          Array.from(rule.style)
+            .filter(prop => prop.startsWith('--breakpoint'))
+        )
+      )
+    }
+  )
+
+  const RO = new ResizeObserver(entries => {
+    entries.forEach(entry => {
+      const gcs = window.getComputedStyle(entry.target)
+      const list = gcs.getPropertyValue('--breakpoints-list')
+      const breakpoints = JSON.parse(list)
+
+      breakpoints.forEach(breakpoint => {
+        let [query, styles] = gcs.getPropertyValue(breakpoint).split('{')
+        styles = styles.slice(0, -1).trim()
+
+        const uid = [
+          entry.target.tagName.toLowerCase(),
+          gcs.getPropertyValue(breakpoint).replace(/\W+/g, '')
+        ].join('')
+        let css = ''
+        let style = document.querySelector(`style#${uid}`)
+
+        if (style === null) {
+          style = document.createElement('style')
+          style.id = uid
+          document.head.appendChild(style)
+        }
+
+        if (elementMatchMedia(entry.target, query).matches) {
+          css += `${entry.target.tagName}[data-ro="${entry.target.dataset.ro}"] { ${styles} }`
+        }
+        if (style.textContent !== css) {
+          style.textContent = css
+        }
+      })
+    })
+  })
+
+  document.querySelectorAll(selectors.join(',')).forEach((tag, index) => {
+    tag.dataset.ro = index
+    RO.observe(tag)
+  })
+</script>

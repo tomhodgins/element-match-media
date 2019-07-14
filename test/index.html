@@ -4,6 +4,9 @@
 <title>Element Match Media Tests</title>
 
 <style>
+  * {
+    box-sizing: border-box;
+  }
   body {
     line-height: 1.4;
   }
@@ -11,19 +14,35 @@
     background: rgb(255, 255, 200);
     padding: .125em .25em;
   }
+  div {
+    display: inline-block;
+    margin: 1em;
+    border: 1px solid;
+    padding: .5em;
+    font-size: 22px;
+  }
+  div::before {
+    content: '#' attr(id);
+    display: block;
+    font-weight: bold;
+  }
+  div::after {
+    content: attr(style);
+  }
 </style>
 
 <h1>Element Match Media Tests</h1>
+
+<section>
+  <div id=one style="width: 100px; height: 200px;"></div>
+  <div id=two style="width: 200px; height: 200px;"></div>
+  <div id=three style="width: 200px; height: 100px;"></div>
+</section>
+
 <h2 id=pass>Tests passed:</h2>
 <ul></ul>
 <h2 id=fail>Tests failed:</h2>
 <ul></ul>
-
-<section style="visibility: hidden;">
-  <div id=one style="width: 100px; height: 200px"></div>
-  <div id=two style="width: 200px; height: 200px"></div>
-  <div id=three style="width: 200px; height: 100px"></div>
-</section>
 
 <script type=module>
   import elementMatchMedia from '../index.js'
