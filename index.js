@@ -18,7 +18,7 @@ export default function(
     iframe.style.cssText = `
       border: none;
       position: fixed;
-      translate(-100vw, -100vh);
+      transform: translate(-100vw, -100vh);
     `
     document.documentElement.appendChild(iframe)
   }
